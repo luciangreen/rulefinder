@@ -28,9 +28,9 @@ test(shortest_rule_prefers_fewer_steps, [setup(setup_search)]) :-
 
 test(all_paths_are_retained, [setup(setup_search)]) :-
     find_all_rule_paths(a, b, Paths),
-    member([ac, cb], Paths),
-    member([ad, db], Paths),
-    member([ad, de, eb], Paths).
+    once(member([ac, cb], Paths)),
+    once(member([ad, db], Paths)),
+    once(member([ad, de, eb], Paths)).
 
 test(typed_relation_composition, [setup(setup_search)]) :-
     find_connection(cat, isa, animal, proof(connection(cat, isa, animal), _)).

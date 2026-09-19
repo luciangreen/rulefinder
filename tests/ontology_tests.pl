@@ -18,6 +18,6 @@ test(indexed_rule_lookup, [setup(setup_ontology)]) :-
 
 test(pattern_discovery, [setup(setup_ontology)]) :-
     discover_patterns(Patterns),
-    member(expand(relation(x, y), [relation(x, z), relation(z, y)])-_, Patterns).
+    once(member(expand(relation(x, y), [relation(x, z), relation(z, y)])-_, Patterns)).
 
 :- end_tests(ontology).

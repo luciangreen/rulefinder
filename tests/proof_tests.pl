@@ -28,7 +28,9 @@ test(synthesise_rule_builds_formula_and_proof) :-
         proof(relation(text, code), _)).
 
 test(explanation_mentions_requested_relation, [setup(setup_proof)]) :-
-    explain_rule(relation(a, b), Explanation),
-    sub_atom(Explanation, _, _, _, 'Requested a -> b').
+    once((
+        explain_rule(relation(a, b), Explanation),
+        sub_atom(Explanation, _, _, _, 'Requested a -> b')
+    )).
 
 :- end_tests(proof).

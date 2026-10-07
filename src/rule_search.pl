@@ -17,14 +17,14 @@ find_rule(Start, End, Formula) :-
     shortest_rule(Start, End, Formula, _).
 
 find_rule_path(Start, End, Path) :-
-    shortest_path(Start, End, Path, _Kind).
+    shortest_path(Start, End, Path).
 
 find_all_rule_paths(Start, End, Paths) :-
-    findall(Path, path_candidate(Start, End, Path, _), RawPaths),
+    findall(Path, path_candidate(Start, End, Path), RawPaths),
     sort_paths(RawPaths, Paths).
 
 shortest_rule(Start, End, Formula, Steps) :-
-    shortest_path(Start, End, Path, _),
+    shortest_path(Start, End, Path),
     compose_path(Path, Formula),
     length(Path, Steps).
 
@@ -36,7 +36,7 @@ find_rule_tree(Start, End, Tree) :-
         Tree = node(Name, Children)
     ;   ontology:rule(Name, Start, End, _)
     ->  rule_expand:expand_rule(Name, Tree)
-    ;   shortest_path(Start, End, Path, _),
+    ;   shortest_path(Start, End, Path),
         maplist(rule_expand:expand_rule, Path, Children),
         Tree = node(derived(Start, End), Children)
     ).
@@ -47,33 +47,28 @@ find_connection(Start, Relation, End, Proof) :-
 find_connection_path(Start, Relation, End, Path) :-
     typed_connection_path(Start, Relation, End, [Start], Path).
 
-shortest_path(Start, End, Path, Kind) :-
-    findall(Len-Kind0-Path0, path_with_kind(Start, End, Path0, Kind0, Len), Pairs),
-    sort(Pairs, [Len-Kind-Path|_]).
+shortest_path(Start, End, Path) :-
+    findall(Len-Path0,
+        ( path_candidate(Start, End, Path0),
+          length(Path0, Len)
+        ),
+        Pairs),
+    sort(Pairs, [_Len-Path|_]).
 
-path_with_kind(Start, End, Path, dictionary, Len) :-
-    path_candidate(Start, End, Path, dictionary),
-    length(Path, Len).
-path_with_kind(Start, End, Path, code, Len) :-
-    path_candidate(Start, End, Path, code),
-    length(Path, Len).
+path_candidate(Start, End, Path) :-
+    route(Start, End, [Start], Path).
 
-path_candidate(Start, End, Path, Kind) :-
-    route(Start, End, [Start], Path, Kind).
-
-route(Start, End, _Visited, [Rule], dictionary) :-
-    ontology:outgoing_rule(Start, Rule, End, _).
-route(Start, End, _Visited, [Rule], code) :-
-    ontology:outgoing_predicate_rule(Start, Rule, _Predicate, End, _).
-route(Start, End, Visited, [Rule|Rest], Kind) :-
-    next_step(Start, Rule, Mid, Kind),
+route(Start, End, _Visited, [Rule]) :-
+    next_step(Start, Rule, End).
+route(Start, End, Visited, [Rule|Rest]) :-
+    next_step(Start, Rule, Mid),
     Mid \= End,
     \+ memberchk(Mid, Visited),
-    route(Mid, End, [Mid|Visited], Rest, Kind).
+    route(Mid, End, [Mid|Visited], Rest).
 
-next_step(Start, Rule, End, dictionary) :-
+next_step(Start, Rule, End) :-
     ontology:outgoing_rule(Start, Rule, End, _).
-next_step(Start, Rule, End, code) :-
+next_step(Start, Rule, End) :-
     ontology:outgoing_predicate_rule(Start, Rule, _Predicate, End, _).
 
 sort_paths(RawPaths, Paths) :-
@@ -82,7 +77,7 @@ sort_paths(RawPaths, Paths) :-
     pairs_values(Sorted, Paths).
 
 nontrivial_path_excluding_rule(Start, End, Rule, Path) :-
-    findall(Candidate, (path_candidate(Start, End, Candidate, _), Candidate \= [Rule]), Candidates),
+    findall(Candidate, (path_candidate(Start, End, Candidate), Candidate \= [Rule]), Candidates),
     sort_paths(Candidates, [Path|_]).
 
 typed_connection_path(Start, Relation, End, _Visited, [connection(Start, Relation, End)]) :-

@@ -11,7 +11,11 @@ discover_patterns(Patterns) :-
     findall(Pattern-Support,
         ( expansion(Parent, [Left, Right], _),
           xy_zy_pattern(Parent, Left, Right, Pattern),
-          findall(example(Parent, Left, Right), expansion(Parent, [Left, Right], _), Support)
+          findall(example(ExampleParent, ExampleLeft, ExampleRight),
+              ( expansion(ExampleParent, [ExampleLeft, ExampleRight], _),
+                xy_zy_pattern(ExampleParent, ExampleLeft, ExampleRight, Pattern)
+              ),
+              Support)
         ),
         Raw),
     sort(Raw, Patterns).

@@ -17,4 +17,16 @@ test(reads_produces_sentence) :-
     parse_sentence('The parser reads tokens and produces a syntax tree.',
         rule(parser, tokens, syntax_tree)).
 
+test(find_sentence) :-
+    parse_sentence('Find how A implies B.', query(relation(a, b))).
+
+test(uses_produces_sentence) :-
+    parse_sentence('A uses C and C produces B.',
+        interpretations([
+            interpretation([
+                connection(a, uses, c),
+                connection(c, produces, b)
+            ])
+        ])).
+
 :- end_tests(parser).

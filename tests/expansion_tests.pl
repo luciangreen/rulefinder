@@ -37,6 +37,9 @@ test(recursive_expansion, [setup(setup_expansion)]) :-
         node(cb, [node(ce, []), node(eb, [])])
     ]).
 
+test(max_depth_option, [setup(setup_expansion)]) :-
+    expand_rule(ab, node(ab, [node(ac, []), node(cb, [])]), [max_depth(1)]).
+
 test(find_rule_tree_uses_parent_rule, [setup(setup_expansion)]) :-
     find_rule_tree(a, b, node(ab, _)).
 

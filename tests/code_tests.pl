@@ -18,4 +18,9 @@ test(predicate_chain_analysis) :-
         node(translate, [node(parse, []), node(optimise, []), node(generate, [])]),
         data_flow(A, B, [step(parse, A, C), step(optimise, C, D), step(generate, D, B)])).
 
+test(clause_expansion) :-
+    clause_to_expansion(
+        (translate(A, B) :- parse(A, C), optimise(C, D), generate(D, B)),
+        expands(translate, [parse, optimise, generate])).
+
 :- end_tests(code).

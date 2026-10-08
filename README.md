@@ -76,6 +76,23 @@ Term = rule(parser, tokens, syntax_tree).
 
 **Meaning:** extracts a rule from a “reads … produces …” sentence.
 
+```prolog
+?- parse_sentence('Find how A implies B.', Term).
+Term = query(relation(a, b)).
+```
+
+**Meaning:** turns a natural-language request into a relation query.
+
+```prolog
+?- parse_sentence('A uses C and C produces B.', Term).
+Term = interpretations([interpretation([
+    connection(a, uses, c),
+    connection(c, produces, b)
+])]).
+```
+
+**Meaning:** records a two-step typed connection interpretation.
+
 ### B) Load and index dictionary terms
 
 ```prolog
@@ -108,6 +125,14 @@ Source = dictionary.
 ```
 
 **Meaning:** queries the indexed outgoing rules from a start symbol.
+
+```prolog
+?- promote_patterns,
+   generalised_rule(expand(relation(x, y), [relation(x, z), relation(z, y)])).
+true.
+```
+
+**Meaning:** discovers and stores generalised expansion patterns from loaded examples.
 
 ### C) Rule search commands
 
@@ -205,3 +230,13 @@ Flow = data_flow(A, B, [step(parse, A, C), step(optimise, C, D), step(generate, 
 ```
 
 **Meaning:** converts a clause into structure + data-flow steps for reasoning.
+
+```prolog
+?- clause_to_expansion(
+       (translate(A, B) :- parse(A, C), optimise(C, D), generate(D, B)),
+       Expansion
+   ).
+Expansion = expands(translate, [parse, optimise, generate]).
+```
+
+**Meaning:** extracts the ordered goal names as an expansion for a clause.

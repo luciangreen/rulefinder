@@ -18,6 +18,14 @@ test(indexed_rule_lookup, [setup(setup_ontology)]) :-
 
 test(pattern_discovery, [setup(setup_ontology)]) :-
     discover_patterns(Patterns),
-    once(member(expand(relation(x, y), [relation(x, z), relation(z, y)])-_, Patterns)).
+    once((
+        member(expand(relation(x, y), [relation(x, z), relation(z, y)])-Support, Patterns),
+        length(Support, 2),
+        member(example(de, df, fe), Support)
+    )).
+
+test(pattern_promotion, [setup(setup_ontology)]) :-
+    promote_patterns,
+    generalised_rule(expand(relation(x, y), [relation(x, z), relation(z, y)])).
 
 :- end_tests(ontology).

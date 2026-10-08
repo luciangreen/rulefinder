@@ -32,6 +32,13 @@ test(all_paths_are_retained, [setup(setup_search)]) :-
     once(member([ad, db], Paths)),
     once(member([ad, de, eb], Paths)).
 
+test(paths_can_mix_dictionary_and_predicate_rules) :-
+    load_dictionary([
+        rule(first, start, middle),
+        predicate_rule(second, transform(middle, finish), middle, finish)
+    ]),
+    shortest_rule(start, finish, compose(first, second), 2).
+
 test(typed_relation_composition, [setup(setup_search)]) :-
     find_connection(cat, isa, animal, proof(connection(cat, isa, animal), _)).
 

@@ -5,7 +5,8 @@
       find_rule_tree/3,
       shortest_rule/4,
       find_connection/4,
-      find_connection_path/4
+      find_connection_path/4,
+      rule_conflicts/1
     ]).
 
 :- use_module(library(lists)).
@@ -16,6 +17,8 @@
 find_rule(Start, End, Formula) :-
     shortest_rule(Start, End, Formula, _).
 
+find_rule_path(Start, End, []) :-
+    Start == End, !.
 find_rule_path(Start, End, Path) :-
     shortest_path(Start, End, Path).
 
@@ -23,6 +26,9 @@ find_all_rule_paths(Start, End, Paths) :-
     findall(Path, path_candidate(Start, End, Path), RawPaths),
     sort_paths(RawPaths, Paths).
 
+% Every concept leads to itself with no rules.
+shortest_rule(Start, End, identity(Start), 0) :-
+    Start == End, !.
 shortest_rule(Start, End, Formula, Steps) :-
     shortest_path(Start, End, Path),
     compose_path(Path, Formula),
@@ -40,6 +46,15 @@ find_rule_tree(Start, End, Tree) :-
         maplist(rule_expand:expand_rule, Path, Children),
         Tree = node(derived(Start, End), Children)
     ).
+
+%% rule_conflicts(-Conflicts)
+% Pairs stated not to imply each other that the rules nevertheless connect,
+% each with the shortest connecting path.
+rule_conflicts(Conflicts) :-
+    findall(conflict(A, B, Path),
+            ( ontology:denial(A, B),
+              shortest_path(A, B, Path) ),
+            Conflicts).
 
 find_connection(Start, Relation, End, Proof) :-
     typed_connection_proof(Start, Relation, End, [Start], Proof).

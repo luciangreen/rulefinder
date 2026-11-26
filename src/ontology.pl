@@ -25,7 +25,8 @@
       outgoing_predicate_rule/5,
       incoming_predicate_rule/5,
       outgoing_connection/4,
-      incoming_connection/4
+      incoming_connection/4,
+      denial/2
     ]).
 
 :- dynamic rule_fact/4.
@@ -39,6 +40,11 @@
 :- dynamic compose_relation_fact/3.
 :- dynamic meta_rule_fact/3.
 :- dynamic generalised_rule_fact/1.
+:- dynamic denial_fact/2.
+
+%% denial(?A, ?B)
+% A has been stated not to lead to B ("A does not imply B").
+denial(A, B) :- denial_fact(A, B).
 
 reset_ontology :-
     retractall(rule_fact(_, _, _, _)),
@@ -51,7 +57,8 @@ reset_ontology :-
     retractall(connection_fact_by_target(_, _, _, _)),
     retractall(compose_relation_fact(_, _, _)),
     retractall(meta_rule_fact(_, _, _)),
-    retractall(generalised_rule_fact(_)).
+    retractall(generalised_rule_fact(_)),
+    retractall(denial_fact(_, _)).
 
 load_dictionary(Terms) :-
     reset_ontology,
@@ -120,6 +127,9 @@ load_term(interpretations(Interpretations)) :-
 load_term(interpretation(Terms)) :-
     !,
     maplist(load_term, Terms).
+load_term(denial(A, B)) :-
+    !,
+    ( denial_fact(A, B) -> true ; assertz(denial_fact(A, B)) ).
 load_term(query(_)) :-
     !.
 load_term(Term) :-

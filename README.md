@@ -240,3 +240,11 @@ Expansion = expands(translate, [parse, optimise, generate]).
 ```
 
 **Meaning:** extracts the ordered goal names as an expansion for a clause.
+
+## Identity, statements and denials
+
+- The route from a concept to itself is empty: `shortest_rule(a, a, identity(a), 0)`.
+- "B implies A." is read as the rule `rule(ba, b, a)`.
+- "A does not imply B." (or "doesn't") is read as `denial(a, b)`. Denials can
+  be loaded with the other terms, and `rule_conflicts(Conflicts)` lists every
+  denied pair that the rules still connect, with the connecting path.

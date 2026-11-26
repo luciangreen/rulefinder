@@ -24,6 +24,12 @@ parse_sentence(Sentence, Term) :-
     parse_find(Text, Term), !.
 parse_sentence(Sentence, Term) :-
     sentence_text(Sentence, Text),
+    parse_denial(Text, Term), !.
+parse_sentence(Sentence, Term) :-
+    sentence_text(Sentence, Text),
+    parse_implies(Text, Term), !.
+parse_sentence(Sentence, Term) :-
+    sentence_text(Sentence, Text),
     parse_reads_produces(Text, Term), !.
 parse_sentence(Sentence, interpretations([Term])) :-
     sentence_text(Sentence, Text),
@@ -64,6 +70,24 @@ parse_through(Text, expand(relation(A, B), [relation(A, C), relation(C, B)])) :-
 parse_find(Text, query(relation(A, B))) :-
     clean_sentence(Text, Clean),
     split_string(Clean, " ", "", ["find", "how", A0, "implies", B0]),
+    normalise_symbol(A0, A),
+    normalise_symbol(B0, B).
+
+% "A implies B" states the rule from A to B, named by joining the two.
+parse_implies(Text, rule(Name, A, B)) :-
+    clean_sentence(Text, Clean),
+    split_string(Clean, " ", "", [A0, "implies", B0]),
+    normalise_symbol(A0, A),
+    normalise_symbol(B0, B),
+    atom_concat(A, B, Name).
+
+% "A does not imply B" and "A doesn't imply B" state a denial.
+parse_denial(Text, denial(A, B)) :-
+    clean_sentence(Text, Clean),
+    (   split_string(Clean, " ", "", [A0, "does", "not", "imply", B0])
+    ;   split_string(Clean, " ", "", [A0, "doesn't", "imply", B0])
+    ),
+    !,
     normalise_symbol(A0, A),
     normalise_symbol(B0, B).
 

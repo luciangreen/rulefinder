@@ -29,4 +29,12 @@ test(uses_produces_sentence) :-
             ])
         ])).
 
+test(plain_implies_statement) :-
+    parse_sentence("B implies A.", Term),
+    assertion(Term == rule(ba, b, a)).
+
+test(denial_statement) :-
+    parse_sentence("A does not imply B.", Term),
+    assertion(Term == denial(a, b)).
+
 :- end_tests(parser).

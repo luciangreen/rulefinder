@@ -45,4 +45,22 @@ test(typed_relation_composition, [setup(setup_search)]) :-
 test(meta_rule_transitivity, [setup(setup_search)]) :-
     find_connection(wheel, part_of, vehicle, proof(connection(wheel, part_of, vehicle), _)).
 
+test(route_to_itself_is_empty) :-
+    load_dictionary([rule(ab, a, b), rule(ba, b, a)]),
+    shortest_rule(a, a, Formula, Steps),
+    assertion(Formula == identity(a)),
+    assertion(Steps == 0),
+    find_rule_path(a, a, Path),
+    assertion(Path == []).
+
+test(denial_conflict_reported) :-
+    load_dictionary([rule(ab, a, b), rule(bc, b, c), denial(a, c)]),
+    rule_conflicts(Conflicts),
+    assertion(Conflicts == [conflict(a, c, [ab, bc])]).
+
+test(denial_without_route_no_conflict) :-
+    load_dictionary([rule(ab, a, b), denial(b, a)]),
+    rule_conflicts(Conflicts),
+    assertion(Conflicts == []).
+
 :- end_tests(search).
